@@ -1,0 +1,23 @@
+[package]
+name = "chrono-light"
+version = "0.1.0"
+edition = "2021"
+description = "Light DateTime/scheduler library for Rust, no_std compatible"
+homepage = "https://github.com/konrads/chrono-light"
+repository = "https://github.com/konrads/chrono-light"
+keywords = ["date", "time", "calendar", "schedule", "scheduler"]
+categories = ["date-and-time"]
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+sp-std = { version = ">=2.0.0", optional = true }
+
+[dev-dependencies]
+chrono = "0.4.19"
+quickcheck = "0.9.2"
+quickcheck_macros = "0.9.1"
+
+[features]
+default = ["std"]
+std = []
+no_std = ["sp-std"]

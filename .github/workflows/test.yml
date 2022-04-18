@@ -1,0 +1,24 @@
+name: test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build std
+      run: cargo build --verbose
+    - name: Build no_std
+      run: cargo build --verbose --no-default-features --features no_std
+    - name: Test std
+      run: cargo test --verbose && cargo test --verbose --doc
+    - name: Test no_std
+      run: cargo test --verbose --no-default-features --features no_std && cargo test --verbose --doc --no-default-features --features no_std
