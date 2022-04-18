@@ -1,6 +1,6 @@
 # Simple DateTime/Scheduler library
 
-![test](https://github.com/konrads/chrono-light/actions/workflows/test.yml/badge.svg)
+[![test](https://github.com/konrads/chrono-light/workflows/test/badge.svg)](https://github.com/konrads/chrono-light/actions/workflows/test.yml)
 
 Provides `DateTime` and `schedule` capabilities with minimal dependency (only requires `Vec` from `std` or [sp_std](https://docs.rs/sp-std/latest/sp_std)).
 
