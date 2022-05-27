@@ -1,5 +1,3 @@
-#[cfg(not(feature = "std"))]
-use super::Vec;
 use super::{
     constants::*,
     types::*,
@@ -26,42 +24,18 @@ pub struct Calendar {
     // values required for the lookup of the years/months, considering leap Februaries
     // - year_offset_ms, taking into account leap/non leap years. store in array with implied index starting at 1970
     // - month_offset_ms, for every year, taking into account leap februaries
-    year_ms_offsets:             Vec<u64>,
-    leap_year_month_offsets:     Vec<u64>,
-    non_leap_year_month_offsets: Vec<u64>,
+    year_ms_offsets:             &'static [u64],
+    leap_year_month_offsets:     &'static [u64],
+    non_leap_year_month_offsets: &'static [u64],
 }
 
 impl Calendar {
     /// Constructor for the calendar.
     pub fn create() -> Self {
-        let mut year_ms_offsets = vec![0_u64];
-        let mut leap_year_month_offsets = vec![0_u64];
-        let mut non_leap_year_month_offsets = vec![0_u64];
-
-        (1970_u16..4000_u16).fold(0, | acc, y| {
-            let ms_in_y = if LEAP_YEARS.contains(&y) {
-                LEAP_YEAR_IN_MS
-            } else {
-                NON_LEAP_YEAR_IN_MS
-            };
-            let new_acc = acc + ms_in_y;
-            year_ms_offsets.push(new_acc);
-            new_acc
-        });
-
-        (0..MONTH_MS_OFFSET_FOR_NON_LEAP_YEAR.len()).fold((0, 0), |acc, i| {
-            let (so_far_leap, so_far_non_leap) = acc;
-            let new_acc_leap = so_far_leap + MONTH_MS_OFFSET_FOR_LEAP_YEAR[i];
-            let new_acc_non_leap = so_far_non_leap + MONTH_MS_OFFSET_FOR_NON_LEAP_YEAR[i];
-            leap_year_month_offsets.push(new_acc_leap);
-            non_leap_year_month_offsets.push(new_acc_non_leap);
-            (new_acc_leap, new_acc_non_leap)
-        });
-
         Self {
-            year_ms_offsets,
-            leap_year_month_offsets,
-            non_leap_year_month_offsets,
+            year_ms_offsets: YEAR_MS_OFFSETS,
+            leap_year_month_offsets: LEAP_YEAR_MONTH_OFFSETS,
+            non_leap_year_month_offsets: NON_LEAP_YEAR_MONTH_OFFSETS,
         }
     }
 

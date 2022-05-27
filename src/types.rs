@@ -1,5 +1,5 @@
 #[cfg(not(feature = "std"))]
-use super::Vec;
+use alloc::vec::Vec;
 #[cfg(feature = "scale")]
 use codec::{Decode, Encode};
 #[cfg(feature = "scale")]
@@ -58,14 +58,14 @@ pub struct Schedule {
 #[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
 #[repr(u32)]
 pub enum Frequency {
-    Year   = 666 as u32,
-    Month  = 999 as u32,
+    Year   = 666_u32,
+    Month  = 999_u32,
     Week   = 7 * MS_IN_DAY as u32,
     Day    = MS_IN_DAY as u32,
     Hour   = MS_IN_HOUR as u32,
     Minute = MS_IN_MIN as u32,
     Second = MS_IN_SEC as u32,
-    Ms     = 1 as u32,
+    Ms     = 1_u32,
 }
 
 #[derive(PartialEq, Eq, Debug)]

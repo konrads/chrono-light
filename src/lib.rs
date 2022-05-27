@@ -1,10 +1,5 @@
 #[cfg(not(feature = "std"))]
-#[macro_use]
 extern crate alloc;
-
-#[cfg(not(feature = "std"))]
-use alloc::vec::Vec;
-
 mod constants;
 mod types;
 mod calendar;

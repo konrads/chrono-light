@@ -5,6 +5,8 @@ use sp_std::vec;
 #[cfg(feature = "std")]
 use std::vec;
 
+use crate::constants::*;
+
 #[test]
 fn test_roundtrip() {
     let ts_and_dt = [
@@ -252,4 +254,42 @@ fn test_invalid_datetimes() {
     assert_eq!(None, c.to_unixtime_opt(&dt));
     let dt = DateTime { year: 2020, month: 0, day: 1, hour: 0, minute: 0, second: 0, ms: 0 };
     assert_eq!(None, c.to_unixtime_opt(&dt));
+}
+
+pub(crate) const NON_LEAP_YEAR_IN_MS: u64 = 365 * MS_IN_DAY;
+pub(crate) const LEAP_YEAR_IN_MS: u64     = 366 * MS_IN_DAY;
+
+pub(crate) const MONTH_MS_OFFSET_FOR_NON_LEAP_YEAR: &[u64] = &[31*MS_IN_DAY, 28*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY];
+pub(crate) const MONTH_MS_OFFSET_FOR_LEAP_YEAR: &[u64]     = &[31*MS_IN_DAY, 29*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY, 30*MS_IN_DAY, 31*MS_IN_DAY];
+
+/// Purpose of this test is to confirm the correctness of the hardcoded offset constants.
+#[test]
+fn test_gen_calendar_offsets() {
+    let mut leap_year_month_offsets = vec![0_u64];
+    let mut non_leap_year_month_offsets = vec![0_u64];
+    let mut year_ms_offsets = vec![0_u64];
+
+    (0..MONTH_MS_OFFSET_FOR_NON_LEAP_YEAR.len()).fold((0, 0), |acc, i| {
+        let (so_far_leap, so_far_non_leap) = acc;
+        let new_acc_leap = so_far_leap + MONTH_MS_OFFSET_FOR_LEAP_YEAR[i];
+        let new_acc_non_leap = so_far_non_leap + MONTH_MS_OFFSET_FOR_NON_LEAP_YEAR[i];
+        leap_year_month_offsets.push(new_acc_leap);
+        non_leap_year_month_offsets.push(new_acc_non_leap);
+        (new_acc_leap, new_acc_non_leap)
+    });
+
+    (1970_u16..4000_u16).fold(0, | acc, y| {
+        let ms_in_y = if LEAP_YEARS.contains(&y) {
+            LEAP_YEAR_IN_MS
+        } else {
+            NON_LEAP_YEAR_IN_MS
+        };
+        let new_acc = acc + ms_in_y;
+        year_ms_offsets.push(new_acc);
+        new_acc
+    });
+
+    assert_eq!(LEAP_YEAR_MONTH_OFFSETS, leap_year_month_offsets);
+    assert_eq!(NON_LEAP_YEAR_MONTH_OFFSETS, non_leap_year_month_offsets);
+    assert_eq!(YEAR_MS_OFFSETS, year_ms_offsets);
 }

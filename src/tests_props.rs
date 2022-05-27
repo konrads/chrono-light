@@ -5,7 +5,7 @@ use chrono::{NaiveDateTime, TimeZone, Utc, Datelike, Timelike};
 use quickcheck::QuickCheck;
 use std::panic;
 
-const PROPS_TESTS: u64 = 500;  // 5 x the norm
+const PROPS_TESTS: u64 = 1000;  // 10 x the norm
 
 /// For default quickcheck behaviour, with not panic hook initialization or test run settings, could also just do:
 /// ```no_run
