@@ -17,8 +17,12 @@ jobs:
     - name: Build std
       run: cargo build --verbose
     - name: Build no_std
-      run: cargo build --verbose --no-default-features --features no_std
+      run: cargo build --verbose --no-default-features
+    - name: Build scale
+      run: cargo build --verbose --no-default-features --features scale
     - name: Test std
       run: cargo test --verbose && cargo test --verbose --doc
     - name: Test no_std
-      run: cargo test --verbose --no-default-features --features no_std && cargo test --verbose --doc --no-default-features --features no_std
+      run: cargo test --verbose --no-default-features && cargo test --verbose --doc --no-default-features
+    - name: Test scale
+      run: cargo test --verbose --no-default-features --features scale && cargo test --verbose --doc --no-default-features --features scale

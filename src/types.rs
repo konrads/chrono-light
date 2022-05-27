@@ -1,8 +1,9 @@
-#[cfg(feature = "no_std")]
-use sp_std::vec::Vec;
-
-#[cfg(feature = "std")]
-use std::vec::Vec;
+#[cfg(not(feature = "std"))]
+use super::Vec;
+#[cfg(feature = "scale")]
+use codec::{Decode, Encode};
+#[cfg(feature = "scale")]
+use scale_info::TypeInfo;
 
 use super::constants::*;
 
@@ -18,6 +19,7 @@ use super::constants::*;
 /// Note: other values will be accepted, but will be classified invalid by the calendar, and if used,
 /// appropriate values will be added on top, eg. 32/01 -> 01/02.
 #[derive(Clone, Default, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
 pub struct DateTime {
     // date
     pub year:   u16,
@@ -44,23 +46,26 @@ impl DateTime {
 
 /// Schedule, represented by a `start` `DateTime`, optional `end` `DateTime`, and multiple pairs of (`Frequency`, `multiplier`).
 /// Next occurrence of trigger time is calculated by taking the earliest occurrence of `Frequency` * `multiplier`, from `start`, but before `end`.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
 pub struct Schedule {
     pub start: DateTime,
     pub items: Vec<(Frequency, u32)>,  // frequency with multiplier
     pub end: Option<DateTime>,
 }
 
-#[derive(PartialEq, Eq, Copy, Clone)]
+#[derive(PartialEq, Debug, Eq, Copy, Clone)]
+#[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
+#[repr(u32)]
 pub enum Frequency {
-    Year   = 666,
-    Month  = 999,
-    Week   = 7 * MS_IN_DAY as isize,
-    Day    = MS_IN_DAY as isize,
-    Hour   = MS_IN_HOUR as isize,
-    Minute = MS_IN_MIN as isize,
-    Second = MS_IN_SEC as isize,
-    Ms     = 1,
+    Year   = 666 as u32,
+    Month  = 999 as u32,
+    Week   = 7 * MS_IN_DAY as u32,
+    Day    = MS_IN_DAY as u32,
+    Hour   = MS_IN_HOUR as u32,
+    Minute = MS_IN_MIN as u32,
+    Second = MS_IN_SEC as u32,
+    Ms     = 1 as u32,
 }
 
 #[derive(PartialEq, Eq, Debug)]

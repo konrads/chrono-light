@@ -1,16 +1,17 @@
 [package]
 name = "chrono-light"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Light DateTime/scheduler library for Rust, no_std compatible"
 homepage = "https://github.com/konrads/chrono-light"
 repository = "https://github.com/konrads/chrono-light"
 keywords = ["date", "time", "calendar", "schedule", "scheduler"]
-categories = ["date-and-time"]
+categories = ["date-and-time", "no-std", "scale"]
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-sp-std = { version = ">=2.0.0", optional = true }
+codec      = { version = ">=1.0.0", package = "parity-scale-codec", default-features = false, features = ["derive"], optional = true }
+scale-info = { version = ">=0.1.0", default-features = false, features = ["derive"], optional = true }
 
 [dev-dependencies]
 chrono = "0.4.19"
@@ -20,4 +21,5 @@ quickcheck_macros = "0.9.1"
 [features]
 default = ["std"]
 std = []
-no_std = ["sp-std"]
+no_std = []
+scale = ["codec", "scale-info"]

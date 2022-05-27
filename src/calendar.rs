@@ -1,9 +1,5 @@
-#[cfg(feature = "no_std")]
-use sp_std::{vec, vec::Vec};
-
-#[cfg(feature = "std")]
-use std::{vec, vec::Vec};
-
+#[cfg(not(feature = "std"))]
+use super::Vec;
 use super::{
     constants::*,
     types::*,

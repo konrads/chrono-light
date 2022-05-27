@@ -2,9 +2,7 @@
 
 [![test](https://github.com/konrads/chrono-light/workflows/test/badge.svg)](https://github.com/konrads/chrono-light/actions/workflows/test.yml)
 
-Provides `DateTime` and `schedule` capabilities with minimal dependency (only requires `Vec` from `std` or [sp_std](https://docs.rs/sp-std/latest/sp_std)).
-
-Designed to work with `Substrate` framework, to extend its scheduling capabilities.
+Provides `DateTime` and `Schedule` capabilities with no external library dependencies. Works in std/no std, optional support for [scale codec](https://github.com/paritytech/parity-scale-codec) encoding/decoding/type info.
 
 Functionality provided:
 * conversion from unixtime (mills from epoch) to `DateTime`, and vice versa
@@ -12,6 +10,7 @@ Functionality provided:
   * start `DateTime`
   * repeat frequency (multiples of year/month/week/day/hour/minute/second/millis)
   * optional end `DateTime`
+* `scale` feature enabling `Encode`/`Decode`/`TypeInfo` support for `DateTime`/`Schedule` structs.
 
 ## Scope
 This library works with `DateTime`s and `schedule`s within years of [1970, 4000].
