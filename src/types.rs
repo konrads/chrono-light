@@ -46,7 +46,7 @@ impl DateTime {
 
 /// Schedule, represented by a `start` `DateTime`, optional `end` `DateTime`, and multiple pairs of (`Frequency`, `multiplier`).
 /// Next occurrence of trigger time is calculated by taking the earliest occurrence of `Frequency` * `multiplier`, from `start`, but before `end`.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
 pub struct Schedule {
     pub start: DateTime,
@@ -54,7 +54,7 @@ pub struct Schedule {
     pub end: Option<DateTime>,
 }
 
-#[derive(PartialEq, Debug, Eq, Copy, Clone)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
 #[repr(u32)]
 pub enum Frequency {
