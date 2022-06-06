@@ -20,6 +20,5 @@ quickcheck_macros = "0.9.1"
 
 [features]
 default = ["std"]
-std = []
-no_std = []
+std = ["codec/std", "scale-info/std"]
 scale = ["codec", "scale-info"]
