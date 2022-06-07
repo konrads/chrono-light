@@ -1,6 +1,6 @@
 use super::prelude::*;
-#[cfg(feature = "no_std")]
-use sp_std::vec;
+#[cfg(not(feature = "std"))]
+use alloc::vec;
 
 #[cfg(feature = "std")]
 use std::vec;

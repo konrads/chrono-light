@@ -1,6 +1,6 @@
 [package]
 name = "chrono-light"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "Light DateTime/scheduler library for Rust, no_std compatible"
 homepage = "https://github.com/konrads/chrono-light"
@@ -20,5 +20,5 @@ quickcheck_macros = "0.9.1"
 
 [features]
 default = ["std"]
-std = ["codec/std", "scale-info/std"]
 scale = ["codec", "scale-info"]
+std = ["codec/std", "scale-info/std"]
