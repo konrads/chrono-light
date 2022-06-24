@@ -54,6 +54,18 @@ pub struct Schedule {
     pub end: Option<DateTime>,
 }
 
+impl Schedule {
+    pub fn validate(&self) -> ValidationResult {
+        let start_before_end = self.end.as_ref().map_or(true, |end| self.start <= *end);
+        let all_freqs_non_zero_multiplier = self.items.iter().all(|&(_, x)| x > 0);
+        if start_before_end && all_freqs_non_zero_multiplier {
+            ValidationResult::Valid
+        } else {
+            ValidationResult::Invalid
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
 #[repr(u32)]

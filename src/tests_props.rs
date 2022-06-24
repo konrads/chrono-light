@@ -1,4 +1,4 @@
-use crate::constants::{EPOCH_YEAR, MS_IN_DAY};
+use crate::constants::{EPOCH_YEAR, MS_IN_DAY, MS_IN_HOUR, MS_IN_SEC, MS_IN_MIN};
 use super::prelude::*;
 
 use chrono::{NaiveDateTime, TimeZone, Utc, Datelike, Timelike};
@@ -15,7 +15,7 @@ const PROPS_TESTS: u64 = 1000;  // 10 x the norm
 /// fn validate_light_vs_chrono(...) {...}
 /// ```
 fn validate_light_vs_chrono(year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8, ms: u16) -> bool {
-    let c = Calendar::create();  // FIXME: should initialize once only!
+    let c = Calendar::create();
 
     // ensure values get some (but not too much) margin for error
     let year = year % (4000 - EPOCH_YEAR as u16) + EPOCH_YEAR as u16;
@@ -48,7 +48,7 @@ fn validate_light_vs_chrono(year: u16, month: u8, day: u8, hour: u8, minute: u8,
 }
 
 fn validate_scheduler_after_start(start_ms: u64, delta_ms: u64, freq: u8, freq_multiplier: u8) -> bool {
-    let c = Calendar::create();  // FIXME: should initialize once only!
+    let c = Calendar::create();
 
     fn get_exact_months(start_ms: u64, now_ms: u64, next_occurrence: u64) -> Option<u32> {
         let start = NaiveDateTime::from_timestamp(start_ms as i64 / 1000, ((start_ms % 1000) * 1_000_000) as u32);
@@ -121,9 +121,9 @@ fn test_validate_scheduler_vs_chrono() {
 }
 
 #[test]
-fn test_zeros() {
-    fn validate_zero_next_occurrence(ts: u64, freq: u8) -> bool {
-        let c = Calendar::create();  // FIXME: should initialize once only!
+fn test_start_equals_now() {
+    fn validate_start_equals_now(ts: u64, freq: u8) -> bool {
+        let c = Calendar::create();
         let ts = ts % 60913560719000;
         let now = c.from_unixtime(ts);
         let freq = match freq % 8 {
@@ -136,8 +136,20 @@ fn test_zeros() {
             6 => Frequency::Second,
             _ => Frequency::Ms,
         };
-
         let freq_multiplier = freq as u32;
+
+        fn is_trigger_valid(freq: Frequency, freq_multiplier: u32, x: u64) -> bool {
+            match freq {
+                Frequency::Year => x >= freq_multiplier as u64 * 365 * MS_IN_DAY && x <= freq_multiplier as u64 * 366 * MS_IN_DAY,  // estimate to avoid leap year calculation
+                Frequency::Month => x >= freq_multiplier as u64 * 28 * MS_IN_DAY && x <= freq_multiplier as u64 * 31 * MS_IN_DAY,   // estimate to avoid month days calculation
+                Frequency::Week => x == freq_multiplier as u64 * 7 * MS_IN_DAY,
+                Frequency::Day => x == freq_multiplier as u64 * MS_IN_DAY,
+                Frequency::Hour => x == freq_multiplier as u64 * MS_IN_HOUR,
+                Frequency::Minute => x == freq_multiplier as u64 * MS_IN_MIN,
+                Frequency::Second => x == freq_multiplier as u64 * MS_IN_SEC,
+                Frequency::Ms => x == freq_multiplier as u64,
+            }
+        }
 
         let res = c.next_occurrence_ms(&now.clone(), &Schedule {
             start: now,
@@ -145,7 +157,7 @@ fn test_zeros() {
             end: None,
         });
 
-        res.map_or(false, |x| x == 0)
+        res.map_or(false, |x| is_trigger_valid(freq, freq_multiplier, x))
     }
-    QuickCheck::new().tests(PROPS_TESTS / 10).max_tests(PROPS_TESTS * 10).quickcheck(validate_zero_next_occurrence as fn(u64, u8) -> bool)
+    QuickCheck::new().tests(PROPS_TESTS / 10).max_tests(PROPS_TESTS * 10).quickcheck(validate_start_equals_now as fn(u64, u8) -> bool)
 }

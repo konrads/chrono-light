@@ -226,6 +226,85 @@ fn test_validation() {
 }
 
 #[test]
+fn test_no_schedules_for_now() {
+    let c = Calendar::create();
+    let start = DateTime { year: 2022, month: 1, day: 25, hour: 5, minute: 3, second: 30, ms: 0 };
+    let start_plus_2s = DateTime { second: start.second + 2, ..start };
+    let start_plus_3s = DateTime { second: start.second + 3, ..start };
+    let now = start.clone();
+    let next_occurrence = c.next_occurrence_ms(&now, &Schedule {
+        start: start.clone(),
+        items: vec![(Frequency::Second, 3)],
+        end: Some(start_plus_2s.clone())
+    });
+    assert_eq!(None, next_occurrence);
+
+    let next_occurrence = c.next_occurrence_ms(&now, &Schedule {
+        start: start.clone(),
+        items: vec![(Frequency::Second, 3)],
+        end: Some(start_plus_3s)
+    });
+    assert_eq!(Some(3000), next_occurrence);
+
+    let start_plus_1s = DateTime { second: start.second + 1, ..start.clone() };
+    let next_occurrence = c.next_occurrence_ms(&now, &Schedule {
+        start: start_plus_1s.clone(),
+        items: vec![(Frequency::Second, 3)],
+        end: Some(start_plus_2s)
+    });
+    assert_eq!(Some(1000), next_occurrence);
+}
+
+#[test]
+fn test_schedule_valid() {
+    let t1 = DateTime { year: 2022, month: 1, day: 25, hour: 5, minute: 3, second: 30, ms: 0 };
+    let t2 = DateTime { second: t1.second + 1, ..t1 };
+    assert_eq!(ValidationResult::Valid, Schedule { start: t1.clone(), items: vec![], end: None}.validate());
+    assert_eq!(ValidationResult::Valid, Schedule { start: t1.clone(), items: vec![], end: Some(t2.clone())}.validate());
+    assert_eq!(ValidationResult::Invalid, Schedule { start: t2.clone(), items: vec![], end: Some(t1.clone())}.validate());
+    assert_eq!(ValidationResult::Valid, Schedule { start: t1.clone(), items: vec![(Frequency::Hour, 1)], end: None}.validate());
+    assert_eq!(ValidationResult::Invalid, Schedule { start: t1.clone(), items: vec![(Frequency::Hour, 0)], end: None}.validate());
+}
+
+#[test]
+fn test_next_occurrence_ms_with_past_triggers() {
+    let c = Calendar::create();
+    let start = DateTime { year: 2000, month: 1, day: 1, hour: 2, minute: 0, second: 0, ms: 0 };
+    let now = DateTime { hour: 6, ..start };
+    let end = DateTime { hour: 23, ..start };
+    let schedule = Schedule {
+        start: start.clone(),
+        items: vec![(Frequency::Hour, 3)],
+        end: Some(end.clone())
+    };
+
+    let (triggers, next_occurrence) = c.next_occurrence_ms_with_past_triggers(None, &now.clone(), &schedule);
+    assert_eq!(triggers, vec![
+        c.to_unixtime(&DateTime { hour: 2, ..start }),
+        c.to_unixtime(&DateTime { hour: 5, ..start }),
+    ]);
+    assert_eq!(next_occurrence, Some(2*60*60*1000));
+
+    let last_run = DateTime { hour: 4, ..now };
+    let now = DateTime { hour: 7, ..start };
+    let (triggers, next_occurrence) = c.next_occurrence_ms_with_past_triggers(Some(&last_run), &now.clone(), &schedule);
+    assert_eq!(triggers, vec![
+        c.to_unixtime(&DateTime { hour: 5, ..start }),
+    ]);
+    assert_eq!(next_occurrence, Some(60*60*1000));
+
+    let last_run = DateTime { hour: 16, ..now };
+    let now = DateTime { hour: 24, ..start };
+    let (triggers, next_occurrence) = c.next_occurrence_ms_with_past_triggers(Some(&last_run), &now.clone(), &schedule);
+    assert_eq!(triggers, vec![
+        c.to_unixtime(&DateTime { hour: 17, ..start }),
+        c.to_unixtime(&DateTime { hour: 20, ..start }),
+        c.to_unixtime(&DateTime { hour: 23, ..start }),
+    ]);
+    assert_eq!(next_occurrence, None);
+}
+
+#[test]
 fn test_earliest_schedule_selected() {
     let c = Calendar::create();
     let start = DateTime { year: 2022, month: 1, day: 25, hour: 5, minute: 3, second: 30, ms: 0 };
