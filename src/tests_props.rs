@@ -27,11 +27,11 @@ fn validate_light_vs_chrono(year: u16, month: u8, day: u8, hour: u8, minute: u8,
     let dt_light = DateTime { year, month, day, hour, minute, second, ms};
     let dt_chrono_res = panic::catch_unwind(|| Utc.ymd(year as i32, month as u32, day as u32).and_hms_milli(hour as u32, minute as u32, second as u32, ms as u32));
     let dt_chrono_light_res = panic::catch_unwind(|| c.to_unixtime(&dt_light));
-    let validation_result = c.validate(&dt_light);
+    let validation_result = c.validate_datetime(&dt_light);
 
-    if validation_result == ValidationResult::Invalid && dt_chrono_res.is_err() {
+    if validation_result == Err(ValidationError::Invalid) && dt_chrono_res.is_err() {
         true
-    } else if validation_result == ValidationResult::Valid && dt_chrono_res.is_ok() && dt_chrono_light_res.is_ok() { // Note: dt_chrono_light_res may be ok when overflowing months/days, but never underflowing
+    } else if validation_result == Ok(()) && dt_chrono_res.is_ok() && dt_chrono_light_res.is_ok() { // Note: dt_chrono_light_res may be ok when overflowing months/days, but never underflowing
         let dt_light_ms = c.to_unixtime(&dt_light);
         let dt_light2 = c.from_unixtime(dt_light_ms);
         let dt_chrono_ms = dt_chrono_res.unwrap().timestamp_millis() as u64;

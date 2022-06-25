@@ -175,54 +175,54 @@ fn test_next_occurrence_years() {
 #[test]
 fn test_validation() {
     let c = Calendar::create();
-    assert_eq!(ValidationResult::OutOfScope, c.validate(&DateTime { year: 1969, month: 1, day: 1, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::OutOfScope, c.validate(&DateTime { year: 4001, month: 1, day: 1, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::OutOfScope), c.validate_datetime(&DateTime { year: 1969, month: 1, day: 1, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::OutOfScope), c.validate_datetime(&DateTime { year: 4001, month: 1, day: 1, hour: 0, minute: 0, second: 0, ms: 0 }));
 
     // static validation
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  0, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  1, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 12, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 13, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 1,  day:  0, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 1,  day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 1,  day: 28, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 1,  day: 32, hour:  0, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour: 23, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour: 24, minute:  0, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute: 59, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute: 60, second:  0, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second: 59, ms:   0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second: 60, ms:   0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second:  0, ms: 999 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second:  0, ms: 1000 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  0, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  1, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 12, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 13, day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 1,  day:  0, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 1,  day:  1, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 28, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 32, hour:  0, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour: 23, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour: 24, minute:  0, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute: 59, second:  0, ms:   0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute: 60, second:  0, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second: 59, ms:   0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second: 60, ms:   0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second:  0, ms: 999 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 1,  day: 10, hour:  0, minute:  0, second:  0, ms: 1000 }));
 
     // months, including leap
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  1,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  1,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  2,  day: 29, hour: 0, minute: 0, second: 0, ms: 0 })); // leap
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  2,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2001, month:  2,  day: 28, hour: 0, minute: 0, second: 0, ms: 0 })); // non leap
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2001, month:  2,  day: 29, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  3,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  3,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  4,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  4,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  5,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  5,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  6,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  6,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  7,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  7,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  8,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  8,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month:  9,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month:  9,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 10,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 10,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 11,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 11,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Valid,   c.validate(&DateTime { year: 2000, month: 12,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
-    assert_eq!(ValidationResult::Invalid, c.validate(&DateTime { year: 2000, month: 12,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  1,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  1,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  2,  day: 29, hour: 0, minute: 0, second: 0, ms: 0 })); // leap
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  2,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2001, month:  2,  day: 28, hour: 0, minute: 0, second: 0, ms: 0 })); // non leap
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2001, month:  2,  day: 29, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  3,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  3,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  4,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  4,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  5,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  5,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  6,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  6,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  7,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  7,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  8,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  8,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month:  9,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month:  9,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 10,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 10,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 11,  day: 30, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 11,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Ok(()),                        c.validate_datetime(&DateTime { year: 2000, month: 12,  day: 31, hour: 0, minute: 0, second: 0, ms: 0 }));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_datetime(&DateTime { year: 2000, month: 12,  day: 32, hour: 0, minute: 0, second: 0, ms: 0 }));
 }
 
 #[test]
@@ -257,13 +257,14 @@ fn test_no_schedules_for_now() {
 
 #[test]
 fn test_schedule_valid() {
+    let c = Calendar::create();
     let t1 = DateTime { year: 2022, month: 1, day: 25, hour: 5, minute: 3, second: 30, ms: 0 };
     let t2 = DateTime { second: t1.second + 1, ..t1 };
-    assert_eq!(ValidationResult::Valid, Schedule { start: t1.clone(), items: vec![], end: None}.validate());
-    assert_eq!(ValidationResult::Valid, Schedule { start: t1.clone(), items: vec![], end: Some(t2.clone())}.validate());
-    assert_eq!(ValidationResult::Invalid, Schedule { start: t2.clone(), items: vec![], end: Some(t1.clone())}.validate());
-    assert_eq!(ValidationResult::Valid, Schedule { start: t1.clone(), items: vec![(Frequency::Hour, 1)], end: None}.validate());
-    assert_eq!(ValidationResult::Invalid, Schedule { start: t1.clone(), items: vec![(Frequency::Hour, 0)], end: None}.validate());
+    assert_eq!(Ok(()),                        c.validate_schedule(&Schedule { start: t1.clone(), items: vec![], end: None}));
+    assert_eq!(Ok(()),                        c.validate_schedule(&Schedule { start: t1.clone(), items: vec![], end: Some(t2.clone())}));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_schedule(&Schedule { start: t2.clone(), items: vec![], end: Some(t1.clone())}));
+    assert_eq!(Ok(()),                        c.validate_schedule(&Schedule { start: t1.clone(), items: vec![(Frequency::Hour, 1)], end: None}));
+    assert_eq!(Err(ValidationError::Invalid), c.validate_schedule(&Schedule { start: t1.clone(), items: vec![(Frequency::Hour, 0)], end: None}));
 }
 
 #[test]
@@ -330,9 +331,9 @@ fn test_earliest_schedule_selected() {
 fn test_invalid_datetimes() {
     let c = Calendar::create();
     let dt = DateTime { year: 2020, month: 1, day: 0, hour: 0, minute: 0, second: 0, ms: 0 };
-    assert_eq!(None, c.to_unixtime_opt(&dt));
+    assert_eq!(Err(ValidationError::Invalid), c.to_unixtime_res(&dt));
     let dt = DateTime { year: 2020, month: 0, day: 1, hour: 0, minute: 0, second: 0, ms: 0 };
-    assert_eq!(None, c.to_unixtime_opt(&dt));
+    assert_eq!(Err(ValidationError::Invalid), c.to_unixtime_res(&dt));
 }
 
 pub(crate) const NON_LEAP_YEAR_IN_MS: u64 = 365 * MS_IN_DAY;

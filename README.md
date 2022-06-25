@@ -32,5 +32,6 @@ let schedule = Schedule {
     items: vec![(Frequency::Year, 1)],
     end: Some(DateTime { year: 2025, month: 4, day: 30, hour: 0, minute: 0, second: 0, ms: 0 })
 };
+assert!(c.validate_schedule(&schedule).is_ok());
 assert_eq!(Some(10*24*60*60*1000), c.next_occurrence_ms(&c.from_unixtime(now_in_ms), &schedule));  // triggers in 10 days
 ```

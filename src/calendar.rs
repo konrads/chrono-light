@@ -18,6 +18,7 @@ use super::{
 ///     items: vec![(Frequency::Year, 1)],
 ///     end: Some(DateTime { year: 2025, month: 4, day: 30, hour: 0, minute: 0, second: 0, ms: 0 })
 /// };
+/// assert!(c.validate_schedule(&schedule).is_ok());
 /// assert_eq!(Some(10*24*60*60*1000), c.next_occurrence_ms(&c.from_unixtime(now_in_ms), &schedule));  // triggers in 10 days
 /// ```
 /// 
@@ -68,15 +69,13 @@ impl Calendar {
     /// ```rust
     /// # use chrono_light::prelude::*;
     /// let c = Calendar::create();
-    /// assert_eq!(c.to_unixtime_opt(&DateTime {year: 2010, month: 10, day: 10, hour: 10, minute: 10, second: 10, ms: 10}), Some(1286705410010));
-    /// assert_eq!(c.to_unixtime_opt(&DateTime {year: 2010, month:  0, day: 10, hour: 10, minute: 10, second: 10, ms: 10}), None);
-    /// assert_eq!(c.to_unixtime_opt(&DateTime {year: 2010, month: 10, day:  0, hour: 10, minute: 10, second: 10, ms: 10}), None);
+    /// assert_eq!(c.to_unixtime_res(&DateTime {year: 2010, month: 10, day: 10, hour: 10, minute: 10, second: 10, ms: 10}), Ok(1286705410010));
+    /// assert_eq!(c.to_unixtime_res(&DateTime {year: 2010, month:  0, day: 10, hour: 10, minute: 10, second: 10, ms: 10}), Err(ValidationError::Invalid));
+    /// assert_eq!(c.to_unixtime_res(&DateTime {year: 2010, month: 10, day:  0, hour: 10, minute: 10, second: 10, ms: 10}), Err(ValidationError::Invalid));
     /// ```
-    pub fn to_unixtime_opt(&self, dt: &DateTime) -> Option<u64> {
-        match self.validate(dt) {
-            ValidationResult::Valid => Some(self.to_unixtime(dt)),
-            _ => None
-        }
+    pub fn to_unixtime_res(&self, dt: &DateTime) -> Result<u64, ValidationError> {
+        self.validate_datetime(dt)?;
+        Ok(self.to_unixtime(dt))
     }
 
     /// Converts ms from epoch to `DateTime`.
@@ -226,24 +225,38 @@ impl Calendar {
     }
 
     /// Validates `DateTime` for correctness of fields, checking in respect to leap years.
-    pub fn validate(&self, dt: &DateTime) -> ValidationResult {
+    pub fn validate_datetime(&self, dt: &DateTime) -> Result<(), ValidationError> {
         // scope check
         (EPOCH_YEAR..=EPOCH_YEAR+self.year_ms_offsets.len()-1).contains(&(dt.year as usize));
         if !(EPOCH_YEAR..=EPOCH_YEAR+self.year_ms_offsets.len()-1).contains(&(dt.year as usize)) {
-            return ValidationResult::OutOfScope;
+            return Err(ValidationError::OutOfScope);
         }
 
         // static valid check
         if !(1..=12).contains(&dt.month) || !(1..=31).contains(&dt.day) || dt.hour >= 24 || dt.minute >= 60 || dt.second >= 60 || dt.ms >= 1000 {
-            return ValidationResult::Invalid;
+            return Err(ValidationError::Invalid);
         }
 
         // leap year check
         let is_leap_year = LEAP_YEARS.contains(&(dt.year as u16));
         if (is_leap_year && dt.day > MONTH_FOR_LEAP_YEAR[dt.month.checked_sub(1).expect("failed to calc month - 1") as usize]) ||
             (!is_leap_year && dt.day > MONTH_FOR_NON_LEAP_YEAR[dt.month.checked_sub(1).expect("failed to calc month - 1") as usize]) {
-            return ValidationResult::Invalid;
+            return Err(ValidationError::Invalid);
         }
-        ValidationResult::Valid
+        Ok(())
+    }
+
+    pub fn validate_schedule(&self, schedule: &Schedule) -> Result<(), ValidationError> {
+        self.validate_datetime(&schedule.start)?;
+        if let Some(end) = &schedule.end {
+            self.validate_datetime(&end)?;
+        }
+
+        let start_before_end = schedule.end.as_ref().map_or(true, |end| schedule.start <= *end);
+        let all_freqs_non_zero_multiplier = schedule.items.iter().all(|&(_, x)| x > 0);
+        if !start_before_end || !all_freqs_non_zero_multiplier {
+            return Err(ValidationError::Invalid);
+        }
+        Ok(())
     }
 }
