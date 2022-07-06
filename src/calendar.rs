@@ -170,7 +170,7 @@ impl Calendar {
                         self.to_unixtime(&next_occurrence) - self.to_unixtime(now)
                     }
                     Frequency::Week | Frequency::Day | Frequency::Hour | Frequency::Minute | Frequency::Second | Frequency::Ms => {
-                        let freq_in_ms = *freq as u64 * *multiplier as u64;
+                        let freq_in_ms = freq.to_ms() as u64 * *multiplier as u64;
                         let ms_in_this_period = (now_in_ms - start_in_ms) % freq_in_ms;
                         if ms_in_this_period == 0 {
                             freq_in_ms

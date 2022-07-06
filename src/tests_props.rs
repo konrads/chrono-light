@@ -102,7 +102,7 @@ fn validate_scheduler_after_start(start_ms: u64, delta_ms: u64, freq: u8, freq_m
         },
         _ => {
             let end_ms = now_ms + next_occurrence;
-            let freq_ms = freq as u64 * freq_multiplier as u64;
+            let freq_ms = freq.to_ms() as u64 * freq_multiplier as u64;
             (end_ms - start_ms) % freq_ms == 0 && next_occurrence <= freq_ms
         }
     }
@@ -136,7 +136,7 @@ fn test_start_equals_now() {
             6 => Frequency::Second,
             _ => Frequency::Ms,
         };
-        let freq_multiplier = freq as u32;
+        let freq_multiplier = freq.to_ms();
 
         fn is_trigger_valid(freq: Frequency, freq_multiplier: u32, x: u64) -> bool {
             match freq {

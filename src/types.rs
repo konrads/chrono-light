@@ -56,16 +56,32 @@ pub struct Schedule {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
 #[cfg_attr(feature = "scale", derive(Encode, Decode, TypeInfo))]
-#[repr(u32)]
+#[repr(u8)]
 pub enum Frequency {
-    Year   = 666_u32,
-    Month  = 999_u32,
-    Week   = 7 * MS_IN_DAY as u32,
-    Day    = MS_IN_DAY as u32,
-    Hour   = MS_IN_HOUR as u32,
-    Minute = MS_IN_MIN as u32,
-    Second = MS_IN_SEC as u32,
-    Ms     = 1_u32,
+    Year,
+    Month,
+    Week,
+    Day,
+    Hour,
+    Minute,
+    Second,
+    Ms,
+}
+
+impl Frequency {
+    #[inline]
+    pub fn to_ms(&self) -> u32 {
+        match self {
+            Frequency::Year   => 666_u32,
+            Frequency::Month  => 999_u32,
+            Frequency::Week   => 7 * MS_IN_DAY as u32,
+            Frequency::Day    => MS_IN_DAY as u32,
+            Frequency::Hour   => MS_IN_HOUR as u32,
+            Frequency::Minute => MS_IN_MIN as u32,
+            Frequency::Second => MS_IN_SEC as u32,
+            Frequency::Ms     => 1_u32,
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, Debug)]
