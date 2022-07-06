@@ -35,3 +35,7 @@ let schedule = Schedule {
 assert!(c.validate_schedule(&schedule).is_ok());
 assert_eq!(Some(10*24*60*60*1000), c.next_occurrence_ms(&c.from_unixtime(now_in_ms), &schedule));  // triggers in 10 days
 ```
+
+### Utility within a pallet
+
+`Chrono-light` serves as a scheduling mechanism for [scheduler-pallet](https://github.com/konrads/pallet-scheduler-datetime).
